@@ -1,0 +1,1 @@
+train.py  --name  1class-resnet-horse_small-bs64  --dataroot  dataset/train/  --classes  horse_small  --batch_size  64  --delr_freq  10  --lr  0.001  --niter  20
