@@ -49,4 +49,5 @@ def create_dataloader(opt):
                                               shuffle=shuffle,
                                               sampler=sampler,
                                               num_workers=int(opt.num_threads))
+                                            # num_workers=0)
     return data_loader

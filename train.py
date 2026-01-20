@@ -6,6 +6,7 @@ import torch.nn
 import argparse
 from PIL import Image
 from tensorboardX import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 from validate import validate
 from data import create_dataloader
@@ -77,14 +78,19 @@ if __name__ == '__main__':
     print(f'cwd: {os.getcwd()}')
     for epoch in range(opt.niter):
         epoch_start_time = time.time()
+        print(f'Epoch {epoch} started at {time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())}')
         iter_data_time = time.time()
         epoch_iter = 0
+
+        print(torch.cuda.is_available(), torch.cuda.current_device(), torch.cuda.get_device_name(0))
 
         for i, data in enumerate(data_loader):
             model.total_steps += 1
             epoch_iter += opt.batch_size
+            # print(f"{epoch_iter=}")
 
             model.set_input(data)
+            #print(model.device, model.input.device, model.label.device)
             model.optimize_parameters()
 
             if model.total_steps % opt.loss_freq == 0:
@@ -97,6 +103,8 @@ if __name__ == '__main__':
             model.adjust_learning_rate()
             
 
+        epoch_end_time = time.time()
+        print(f'Epoch {epoch} finished at {time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())}')
         # Validation
         model.eval()
         acc, ap = validate(model.model, val_opt)[:2]
@@ -104,8 +112,10 @@ if __name__ == '__main__':
         val_writer.add_scalar('ap', ap, model.total_steps)
         print("(Val @ epoch {}) acc: {}; ap: {}".format(epoch, acc, ap))
         # testmodel()
+        model.save_networks(epoch)
         model.train()
 
-    model.eval();testmodel()
+    model.eval()
+    # ;testmodel()
     model.save_networks('last')
     
